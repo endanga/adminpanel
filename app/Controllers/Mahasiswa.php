@@ -13,11 +13,15 @@ class Mahasiswa extends Controller
         $mahasiswaModel = new MahasiswaModel();
         $session = session();
         $username = $session->get('username');
+        if($username != null || $username != ""){
+            $result['m_mahasiswa'] = 'active';
+            $result['username'] = $username;
         
-        $result['m_mahasiswa'] = 'active';
-        $result['username'] = $username;
-    
-        return  view('templates/sidebar', $result).view('templates/topbar').view('mahasiswa/index', $result).view('templates/footer');
+            return  view('templates/sidebar', $result).view('templates/topbar').view('mahasiswa/index', $result).view('templates/footer');
+        }else{
+            return redirect()->to(base_url('')); 
+        }
+       
     }
 
     public function getalldata(){

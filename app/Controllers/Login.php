@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 use App\Models\MahasiswaModel;
+use App\Models\UsersModel;
 use CodeIgniter\Controller;
 helper('form');
 
@@ -26,23 +27,41 @@ class Login extends Controller
 
     public function loginuser()
     {
+        $usermodel = new UsersModel();
+
         $session = session();
-        $newdata = [
-            'username'  => 'mahasiswa',
-            'email'     => 'mahasiswa@mail.com',
-            'logged_in' => true,
-        ];
+        $username = $session->get('username');
+        if($username != null || $username != ""){
+            $result['m_mahasiswa'] = '';
+            $result['username'] = $username;
+            return view('templates/topbar').view('templates/sidebar', $result).view('templates/footer');
+        }else{
+            $data = $usermodel->where('email', $this->request->getVar('email'))->first();
+
+            if($data != null && count($data) >= 1){
+                $newdata = [
+                    'username'  => $data['username'],
+                    'email'     => $data['email'],
+                    'logged_in' => true,
+                ];
+                
+                $session->set($newdata);
+                $result['m_mahasiswa'] = '';
+                $result['username'] = $newdata['username'];
         
-        $session->set($newdata);
-        $result['m_mahasiswa'] = '';
-        $result['username'] = $newdata['username'];
-        return view('templates/topbar').view('templates/sidebar', $result).view('templates/footer'); 
+                return view('templates/topbar').view('templates/sidebar', $result).view('templates/footer'); 
+            }
+            
+            return redirect()->to(base_url(''));
+        }
+
+        
     }
 
     public function logoutuser(){
         $session = session();
         $array_items = ['username', 'email', 'logged_in'];
         $session->remove($array_items);
-        return view('login/login');
+        return redirect()->to(base_url(''));
     }
 }
